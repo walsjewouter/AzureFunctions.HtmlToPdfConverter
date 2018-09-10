@@ -57,7 +57,7 @@ namespace Trigger
             try
             {
                 var request = new HttpRequestMessage();
-                request.Content = new StringContent($"<div>Hi, the time is now ${DateTime.Now.ToLongTimeString()}</div>", Encoding.UTF8, "text/html");
+                request.Content = new StringContent($"<div>Hi, the time is now {DateTime.Now.ToLongTimeString()}</div>", Encoding.UTF8, "text/html");
                 request.RequestUri = new Uri("http://localhost:7071/api/HtmlToPdfConverter");
                 request.Method = HttpMethod.Post;
 
@@ -78,9 +78,9 @@ namespace Trigger
 
                 var response = await client.SendAsync(request);
 
-                Console.WriteLine($"Recieved response: {response.StatusCode}");
+                Console.WriteLine($"Received response: {response.StatusCode}");
 
-                File.WriteAllBytes("D:\\output.pdf", await response.Content.ReadAsByteArrayAsync());
+                File.WriteAllBytes("output.pdf", await response.Content.ReadAsByteArrayAsync());
             }
             catch (WebException wex)
             {

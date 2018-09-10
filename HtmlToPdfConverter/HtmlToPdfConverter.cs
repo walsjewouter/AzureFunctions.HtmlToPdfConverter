@@ -29,12 +29,20 @@ namespace HtmlToPdfConverter
             {
                 try
                 {
-                    pageOrientation = (PageOrientation)Enum.Parse(typeof(PageOrientation), req.Headers.GetValues("PageOrientation").First());
+                    string pageOrientationValue = req.Headers.GetValues("PageOrientation").First();
+                    log.Info($"PageOrientation header found with value: {pageOrientationValue}");
+                    pageOrientation = (PageOrientation)Enum.Parse(typeof(PageOrientation), pageOrientationValue);
+
                 }
                 catch (Exception)
                 {
+                    log.Warning("Exception during PageOrientation parsing");
                     return req.CreateResponse(HttpStatusCode.BadRequest, "Invalid page orientation specified");
                 }
+            }
+            else
+            {
+                log.Verbose($"PageOrientation header NOT found using default value");
             }
 
             PageSize pageSize = PageSize.Default;
@@ -42,12 +50,19 @@ namespace HtmlToPdfConverter
             {
                 try
                 {
-                    pageSize = (PageSize)Enum.Parse(typeof(PageSize), req.Headers.GetValues("PageSize").First());
+                    string pageSizeValue = req.Headers.GetValues("PageSize").First();
+                    log.Info($"PageSize header found with value: {pageSizeValue}");
+                    pageSize = (PageSize)Enum.Parse(typeof(PageSize), pageSizeValue);
                 }
                 catch (Exception)
                 {
+                    log.Warning("Exception during PageSize parsing");
                     return req.CreateResponse(HttpStatusCode.BadRequest, "Invalid page size specified");
                 }
+            }
+            else
+            {
+                log.Verbose($"PageSize header NOT found using default value");
             }
 
             int marginLeft = 15;
@@ -57,6 +72,8 @@ namespace HtmlToPdfConverter
             if (req.Headers.Contains("Margin"))
             {
                 int margin;
+                string marginValue = req.Headers.GetValues("Margin").First();
+                log.Info($"Margin header found with value: {marginValue}");
                 if (int.TryParse(req.Headers.GetValues("Margin").First(), out margin) && margin >= 0)
                 {
                     marginLeft = margin;
@@ -69,24 +86,34 @@ namespace HtmlToPdfConverter
                     return req.CreateResponse(HttpStatusCode.BadRequest, "Invalid margin specified");
                 }
             }
+            else
+            {
+                log.Verbose($"Margin header NOT found using value of 15");
+            }
 
             try
             {
+                log.Verbose($"Instantiating converter");
                 var htmlToPdf = new NReco.PdfGenerator.HtmlToPdfConverter();
                 htmlToPdf.Orientation = pageOrientation;
                 htmlToPdf.Size = pageSize;
                 htmlToPdf.Margins = new PageMargins() { Left = marginLeft, Right = marginRight, Top = marginTop, Bottom = marginBottom };
 
+                log.Info($"Generate Pdf");
                 var pdfBytes = htmlToPdf.GeneratePdf(document);
 
+                log.Verbose($"Creating response");
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 response.Content = new ByteArrayContent(pdfBytes);
                 response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { FileName = "Matchreport.pdf" };
                 response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                log.Info("HtmlToPdfConverter process finished.");
                 return response;
             }
             catch (Exception ex)
             {
+                log.Warning("Exception during PDF and response creation");
                 return req.CreateResponse(HttpStatusCode.BadRequest, $"Exception during PDF creation, message {ex.Message}");
             }
         }
