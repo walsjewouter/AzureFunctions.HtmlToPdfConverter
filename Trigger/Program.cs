@@ -16,11 +16,12 @@ namespace Trigger
             Console.WriteLine("1 to post a request for a PDF with: default values");
             Console.WriteLine("2 to post a request for a PDF with: A4 Landscape, margin 5");
             Console.WriteLine("3 to post a request for a PDF with: A3 Portrait, margin 50");
+            Console.WriteLine("4 to post a request for a PDF with: Letter Portrait, default margin");
 
             var c = Console.ReadKey();
             while (c.Key != ConsoleKey.Q)
             {
-                if (c.KeyChar == '1' || c.KeyChar == '2' || c.KeyChar == '3')
+                if (c.KeyChar == '1' || c.KeyChar == '2' || c.KeyChar == '3' || c.KeyChar == '4')
                 {
                     Console.Write($" -> Posting request... ");
 
@@ -31,11 +32,15 @@ namespace Trigger
                             break;
 
                         case '2':
-                            DoPost("Landscape", "A4", 5);
+                            DoPost("A4", "Landscape", 5);
                             break;
 
                         case '3':
-                            DoPost("Portrait", "A3", 50);
+                            DoPost("A3", "Portrait", 50);
+                            break;
+
+                        case '4':
+                            DoPost("Letter", "Portrait");
                             break;
                     }
 
@@ -52,31 +57,37 @@ namespace Trigger
             Console.WriteLine("\r\n\r\nQuitting\r\n");
         }
 
-        private static async void DoPost(string pageOrientation = null, string pageSize = null, int margin = 0)
+        private static async void DoPost(string pageSize = null, string pageOrientation = null, int? margin = null)
         {
             try
             {
+                string body = $"<div>Hi, the time is now {DateTime.Now.ToLongTimeString()}</div>";
                 var request = new HttpRequestMessage();
-                request.Content = new StringContent($"<div>Hi, the time is now {DateTime.Now.ToLongTimeString()}</div>", Encoding.UTF8, "text/html");
+                request.Content = new StringContent(body, Encoding.UTF8, "text/html");
                 request.RequestUri = new Uri("http://localhost:7071/api/HtmlToPdfConverter");
                 request.Method = HttpMethod.Post;
-
-                if (pageOrientation != null)
-                {
-                    request.Headers.Add("PageOrientation", pageOrientation);
-                }
 
                 if (pageSize != null)
                 {
                     request.Headers.Add("PageSize", pageSize);
                 }
 
-                if (margin != 0)
+                if (pageOrientation != null)
                 {
-                    request.Headers.Add("Margin", margin.ToString());
+                    request.Headers.Add("PageOrientation", pageOrientation);
+                }
+
+                if (margin.HasValue)
+                {
+                    request.Headers.Add("LeftMargin", margin.Value.ToString());
+                    request.Headers.Add("rightMargin", margin.Value.ToString());
+                    request.Headers.Add("TopMargin", margin.Value.ToString());
+                    request.Headers.Add("BottomMargin", margin.Value.ToString());
                 }
 
                 var response = await client.SendAsync(request);
+
+                string content = await response.Content.ReadAsStringAsync();
 
                 Console.WriteLine($"Received response: {response.StatusCode}");
 

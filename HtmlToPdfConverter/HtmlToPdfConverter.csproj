@@ -4,12 +4,12 @@
     <AzureFunctionsVersion>v1</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.6" />
+    <PackageReference Include="itext7.pdfhtml" Version="2.1.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.19" />
-    <PackageReference Include="NReco.PdfGenerator" Version="1.1.15" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Reflection.Context" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>

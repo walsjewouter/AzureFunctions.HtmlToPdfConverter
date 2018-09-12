@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtmlToPdfConverter", "HtmlToPdfConverter\HtmlToPdfConverter.csproj", "{4AAF1674-6429-4E8F-87F6-F90E690CC5C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trigger", "Trigger\Trigger.csproj", "{7C6B310E-43B3-4FD7-9535-CE3A417C7C7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Trigger", "Trigger\Trigger.csproj", "{7C6B310E-43B3-4FD7-9535-CE3A417C7C7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
