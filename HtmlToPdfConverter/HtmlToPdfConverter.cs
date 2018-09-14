@@ -1,4 +1,5 @@
 using iText.Html2pdf;
+using iText.Html2pdf.Attach.Impl.Layout;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
@@ -50,27 +51,8 @@ namespace HtmlToPdfConverter
 
             try
             {
-                log.Verbose($"Instantiating converter");
-
-                byte[] pdfBytes;
-                using (var stream = new MemoryStream())
-                {
-                    var pdf = new PdfDocument(new PdfWriter(stream));
-                    pdf.SetDefaultPageSize(pageSize);
-
-                    var document = new Document(pdf);
-                    document.SetMargins(topMargin, rightMargin, bottomMargin, leftMargin);
-
-                    var elements = HtmlConverter.ConvertToElements(html);
-                    foreach (IElement element in elements)
-                    {
-                        document.Add((IBlockElement)element);
-                    }
-
-                    document.Close();
-
-                    pdfBytes = stream.ToArray();
-                }
+                log.Verbose($"Converting HTml into PDF");
+                var pdfBytes = Convert(html, pageSize, leftMargin, rightMargin, topMargin, bottomMargin, log);
 
                 log.Verbose($"Creating response");
                 var response = req.CreateResponse(HttpStatusCode.OK);
@@ -86,6 +68,51 @@ namespace HtmlToPdfConverter
                 log.Warning("Exception during PDF and response creation");
                 return req.CreateResponse(HttpStatusCode.BadRequest, $"Exception during PDF creation, message {ex.Message}");
             }
+        }
+
+        private static byte[] Convert(string html, PageSize pageSize, int leftMargin, int rightMargin, int topMargin, int bottomMargin, TraceWriter log)
+        {
+            byte[] pdfBytes;
+            using (var stream = new MemoryStream())
+            {
+                log.Verbose($"Creating PDF document, using pdf writer stream on memory stream");
+                var pdf = new PdfDocument(new PdfWriter(stream));
+
+                log.Verbose($"Setting default page size");
+                pdf.SetDefaultPageSize(pageSize);
+
+                log.Verbose($"Creating document from PDF");
+                var document = new Document(pdf);
+
+                log.Verbose($"Setting margins");
+                document.SetMargins(topMargin, rightMargin, bottomMargin, leftMargin);
+
+                log.Verbose($"Converting HTML into elements");
+                var elements = HtmlConverter.ConvertToElements(html);
+
+                log.Verbose($"Adding elements to the document");
+                foreach (IElement element in elements)
+                {
+                    if (element is HtmlPageBreak)
+                    {
+                        document.Add((HtmlPageBreak)element);
+                    }
+                    else
+                    {
+                        document.Add((IBlockElement)element);
+                    }
+                }
+
+                log.Verbose($"Closing document");
+                document.Close();
+
+                log.Verbose($"Write memory stream to byte array");
+                pdfBytes = stream.ToArray();
+
+                pdf.Close();
+            }
+
+            return pdfBytes;
         }
 
         private static PageSize GetPageSize(HttpRequestHeaders headers, PageSize defaultSize, TraceWriter log)
