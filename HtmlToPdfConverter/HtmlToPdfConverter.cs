@@ -1,4 +1,5 @@
 using iText.Html2pdf;
+using iText.Html2pdf.Attach.Impl.Layout;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
@@ -92,7 +93,14 @@ namespace HtmlToPdfConverter
                 log.Verbose($"Adding elements to the document");
                 foreach (IElement element in elements)
                 {
-                    document.Add((IBlockElement)element);
+                    if (element is HtmlPageBreak)
+                    {
+                        document.Add((HtmlPageBreak)element);
+                    }
+                    else
+                    {
+                        document.Add((IBlockElement)element);
+                    }
                 }
 
                 log.Verbose($"Closing document");
