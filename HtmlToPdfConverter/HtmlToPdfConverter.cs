@@ -32,7 +32,7 @@ public class HtmlToPdfConverter
             return new BadRequestResult();
         }
 
-        var pageSize = GetPageSize(req.Headers, PageSize.Default);
+        var pageSize = GetPageSize(req.Headers, PageSize.DEFAULT);
 
         if (req.Headers.ContainsKey("PageOrientation"))
         {
