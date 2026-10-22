@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Text;
 
 namespace Trigger
@@ -61,10 +58,10 @@ namespace Trigger
         {
             try
             {
-                string body = $"<div>Hi, the time is now {DateTime.Now.ToLongTimeString()}</div>";
+                string body = $"<html><body><div>Hi, the time is now {DateTime.Now.ToLongTimeString()}</div></body></html>";
                 var request = new HttpRequestMessage();
                 request.Content = new StringContent(body, Encoding.UTF8, "text/html");
-                request.RequestUri = new Uri("http://localhost:7071/api/HtmlToPdfConverter");
+                request.RequestUri = new Uri("http://localhost:7113/api/HtmlToPdfConverter");
                 request.Method = HttpMethod.Post;
 
                 if (pageSize != null)
